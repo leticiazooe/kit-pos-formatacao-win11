@@ -1,6 +1,7 @@
 #requires -version 5.1
 <#
     SETUP WINDOWS 11 - POS-FORMATACAO
+
     Instala automaticamente:
       - Google Chrome
       - WinRAR
@@ -10,6 +11,8 @@
       - Git
       - GitHub Desktop
       - GitHub CLI
+      - Python 3.14
+      - Bibliotecas Python usadas nos projetos
 
     Tambem abre a configuracao de Aplicativos Padrao ao final.
 #>
@@ -28,6 +31,13 @@ function Test-Administrator {
     $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Refresh-Path {
+    $env:Path = (
+        [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+        [System.Environment]::GetEnvironmentVariable("Path", "User")
+    )
 }
 
 if (-not (Test-Administrator)) {
@@ -52,7 +62,7 @@ try {
 Clear-Host
 Write-Title "SETUP WINDOWS 11"
 
-Write-Host "Este script vai preparar o basico do computador apos a formatacao." -ForegroundColor White
+Write-Host "Este script vai preparar o computador apos a formatacao." -ForegroundColor White
 Write-Host ""
 Write-Host "Programas:" -ForegroundColor Gray
 Write-Host "  [1] Google Chrome"
@@ -63,9 +73,11 @@ Write-Host "  [5] Steam"
 Write-Host "  [6] Git"
 Write-Host "  [7] GitHub Desktop"
 Write-Host "  [8] GitHub CLI"
+Write-Host "  [9] Python 3.14"
+Write-Host " [10] Bibliotecas Python"
 Write-Host ""
 
-Write-Title "1/3 - CHOCOLATEY"
+Write-Title "1/4 - CHOCOLATEY"
 
 if (-not (Get-Command choco.exe -ErrorAction SilentlyContinue)) {
     Write-Host "Chocolatey nao encontrado. Instalando..." -ForegroundColor Yellow
@@ -80,10 +92,7 @@ if (-not (Get-Command choco.exe -ErrorAction SilentlyContinue)) {
         )
     )
 
-    $env:Path = (
-        [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
-        [System.Environment]::GetEnvironmentVariable("Path", "User")
-    )
+    Refresh-Path
 } else {
     Write-Host "Chocolatey ja esta instalado." -ForegroundColor Green
 }
@@ -94,17 +103,18 @@ if (-not (Get-Command choco.exe -ErrorAction SilentlyContinue)) {
 
 choco --version
 
-Write-Title "2/3 - INSTALANDO PROGRAMAS"
+Write-Title "2/4 - INSTALANDO PROGRAMAS"
 
 $packages = @(
-    @{ Id = "googlechrome";   Name = "Google Chrome" },
-    @{ Id = "winrar";        Name = "WinRAR" },
-    @{ Id = "vscode";        Name = "Visual Studio Code" },
-    @{ Id = "spotify";       Name = "Spotify" },
-    @{ Id = "steam";         Name = "Steam" },
-    @{ Id = "git";           Name = "Git" },
+    @{ Id = "googlechrome";    Name = "Google Chrome" },
+    @{ Id = "winrar";         Name = "WinRAR" },
+    @{ Id = "vscode";         Name = "Visual Studio Code" },
+    @{ Id = "spotify";        Name = "Spotify" },
+    @{ Id = "steam";          Name = "Steam" },
+    @{ Id = "git";            Name = "Git" },
     @{ Id = "github-desktop"; Name = "GitHub Desktop" },
-    @{ Id = "gh";            Name = "GitHub CLI" }
+    @{ Id = "gh";             Name = "GitHub CLI" },
+    @{ Id = "python314";      Name = "Python 3.14" }
 )
 
 $failed = @()
@@ -129,11 +139,7 @@ foreach ($package in $packages) {
     }
 }
 
-# Recarrega o PATH para disponibilizar Git e GitHub CLI na sessao atual.
-$env:Path = (
-    [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
-    [System.Environment]::GetEnvironmentVariable("Path", "User")
-)
+Refresh-Path
 
 Write-Host ""
 if (Get-Command git.exe -ErrorAction SilentlyContinue) {
@@ -145,7 +151,74 @@ if (Get-Command gh.exe -ErrorAction SilentlyContinue) {
     Write-Host "GitHub CLI instalado: $ghVersion" -ForegroundColor Green
 }
 
-Write-Title "3/3 - APLICATIVOS PADRAO"
+Write-Title "3/4 - PREPARANDO PYTHON"
+
+$pythonCommand = Get-Command python.exe -ErrorAction SilentlyContinue
+
+if (-not $pythonCommand) {
+    Refresh-Path
+    $pythonCommand = Get-Command python.exe -ErrorAction SilentlyContinue
+}
+
+if (-not $pythonCommand) {
+    Write-Host "Python nao ficou disponivel no PATH." -ForegroundColor Red
+    $failed += "Python / bibliotecas Python"
+} else {
+    $pythonExe = $pythonCommand.Source
+    Write-Host "Python encontrado em: $pythonExe" -ForegroundColor Green
+    & $pythonExe --version
+
+    Write-Host ""
+    Write-Host "Atualizando pip, setuptools e wheel..." -ForegroundColor Cyan
+    & $pythonExe -m pip install --upgrade pip setuptools wheel
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Falha ao atualizar ferramentas base do Python." -ForegroundColor Red
+        $failed += "pip/setuptools/wheel"
+    }
+
+    $requirementsDir = Join-Path $PSScriptRoot "python"
+    $requirementsFiles = @(
+        "requirements-base.txt",
+        "requirements-data.txt",
+        "requirements-web.txt",
+        "requirements-desktop.txt",
+        "requirements-dev.txt",
+        "requirements-engineering.txt"
+    )
+
+    foreach ($requirementsFile in $requirementsFiles) {
+        $requirementsPath = Join-Path $requirementsDir $requirementsFile
+
+        Write-Host ""
+        Write-Host ">>> Instalando $requirementsFile" -ForegroundColor Cyan
+
+        if (-not (Test-Path $requirementsPath)) {
+            Write-Host "Arquivo nao encontrado: $requirementsPath" -ForegroundColor Red
+            $failed += $requirementsFile
+            continue
+        }
+
+        & $pythonExe -m pip install --upgrade -r $requirementsPath
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "$requirementsFile: OK" -ForegroundColor Green
+        } else {
+            Write-Host "$requirementsFile: FALHOU" -ForegroundColor Red
+            $failed += $requirementsFile
+        }
+    }
+
+    Write-Host ""
+    Write-Host "Verificando dependencias instaladas..." -ForegroundColor Cyan
+    & $pythonExe -m pip check
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Ambiente Python sem conflitos reportados pelo pip." -ForegroundColor Green
+    } else {
+        Write-Host "O pip encontrou conflitos de dependencias. Consulte o log." -ForegroundColor Yellow
+        $failed += "pip check"
+    }
+}
+
+Write-Title "4/4 - APLICATIVOS PADRAO"
 
 $chromeCandidates = @(
     "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
@@ -180,15 +253,15 @@ try {
 Write-Title "CONCLUIDO"
 
 if ($failed.Count -eq 0) {
-    Write-Host "Todos os programas foram instalados/atualizados com sucesso." -ForegroundColor Green
+    Write-Host "Todos os programas e bibliotecas foram instalados/atualizados com sucesso." -ForegroundColor Green
 } else {
-    Write-Host "Os seguintes programas tiveram erro:" -ForegroundColor Red
-    foreach ($item in $failed) {
+    Write-Host "Os seguintes itens tiveram erro:" -ForegroundColor Red
+    foreach ($item in ($failed | Select-Object -Unique)) {
         Write-Host "  - $item" -ForegroundColor Red
     }
 
     Write-Host ""
-    Write-Host "Voce pode executar este script novamente. Ele nao reinstala desnecessariamente os programas que ja estiverem corretos." -ForegroundColor Yellow
+    Write-Host "Voce pode executar este script novamente. Os itens corretos serao mantidos e os demais serao tentados novamente." -ForegroundColor Yellow
 }
 
 Write-Host ""
