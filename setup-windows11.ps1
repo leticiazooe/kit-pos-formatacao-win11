@@ -7,6 +7,9 @@
       - Visual Studio Code
       - Spotify
       - Steam
+      - Git
+      - GitHub Desktop
+      - GitHub CLI
 
     Tambem abre a configuracao de Aplicativos Padrao ao final.
 #>
@@ -57,6 +60,9 @@ Write-Host "  [2] WinRAR"
 Write-Host "  [3] Visual Studio Code"
 Write-Host "  [4] Spotify"
 Write-Host "  [5] Steam"
+Write-Host "  [6] Git"
+Write-Host "  [7] GitHub Desktop"
+Write-Host "  [8] GitHub CLI"
 Write-Host ""
 
 Write-Title "1/3 - CHOCOLATEY"
@@ -91,11 +97,14 @@ choco --version
 Write-Title "2/3 - INSTALANDO PROGRAMAS"
 
 $packages = @(
-    @{ Id = "googlechrome"; Name = "Google Chrome" },
-    @{ Id = "winrar";      Name = "WinRAR" },
-    @{ Id = "vscode";      Name = "Visual Studio Code" },
-    @{ Id = "spotify";     Name = "Spotify" },
-    @{ Id = "steam";       Name = "Steam" }
+    @{ Id = "googlechrome";   Name = "Google Chrome" },
+    @{ Id = "winrar";        Name = "WinRAR" },
+    @{ Id = "vscode";        Name = "Visual Studio Code" },
+    @{ Id = "spotify";       Name = "Spotify" },
+    @{ Id = "steam";         Name = "Steam" },
+    @{ Id = "git";           Name = "Git" },
+    @{ Id = "github-desktop"; Name = "GitHub Desktop" },
+    @{ Id = "gh";            Name = "GitHub CLI" }
 )
 
 $failed = @()
@@ -118,6 +127,22 @@ foreach ($package in $packages) {
         Write-Host "$($package.Name): FALHOU (codigo $exitCode)" -ForegroundColor Red
         $failed += $package.Name
     }
+}
+
+# Recarrega o PATH para disponibilizar Git e GitHub CLI na sessao atual.
+$env:Path = (
+    [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+    [System.Environment]::GetEnvironmentVariable("Path", "User")
+)
+
+Write-Host ""
+if (Get-Command git.exe -ErrorAction SilentlyContinue) {
+    Write-Host "Git instalado: $(git --version)" -ForegroundColor Green
+}
+
+if (Get-Command gh.exe -ErrorAction SilentlyContinue) {
+    $ghVersion = (gh --version | Select-Object -First 1)
+    Write-Host "GitHub CLI instalado: $ghVersion" -ForegroundColor Green
 }
 
 Write-Title "3/3 - APLICATIVOS PADRAO"
@@ -165,6 +190,10 @@ if ($failed.Count -eq 0) {
     Write-Host ""
     Write-Host "Voce pode executar este script novamente. Ele nao reinstala desnecessariamente os programas que ja estiverem corretos." -ForegroundColor Yellow
 }
+
+Write-Host ""
+Write-Host "GitHub Desktop e GitHub CLI foram instalados, mas o login na sua conta GitHub continua sendo feito por voce." -ForegroundColor Cyan
+Write-Host "Para autenticar o terminal depois, use: gh auth login" -ForegroundColor Cyan
 
 if ($restartRecommended) {
     Write-Host ""
