@@ -1,0 +1,6 @@
+PySide6
+customtkinter
+pywebview
+Pillow
+pymupdf
+opencv-python
