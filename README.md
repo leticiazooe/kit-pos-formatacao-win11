@@ -9,6 +9,9 @@ Kit simples para acelerar a preparação de um computador recém-formatado com W
 - Visual Studio Code
 - Spotify
 - Steam
+- Git
+- GitHub Desktop
+- GitHub CLI (`gh`)
 - Chocolatey, caso ainda não esteja instalado
 
 ## Como usar
@@ -19,6 +22,22 @@ Kit simples para acelerar a preparação de um computador recém-formatado com W
 4. Escolha **Executar como administrador**.
 5. Aceite a solicitação do UAC.
 6. Aguarde a instalação dos programas.
+
+## Git e GitHub
+
+O kit instala:
+
+- **Git** para versionamento de código.
+- **GitHub Desktop** para trabalhar com repositórios por interface gráfica.
+- **GitHub CLI** para usar o GitHub diretamente pelo terminal com o comando `gh`.
+
+O login da conta GitHub não é automatizado por segurança. Depois da instalação, você pode autenticar o terminal executando:
+
+```powershell
+gh auth login
+```
+
+No GitHub Desktop, basta abrir o aplicativo e entrar com a sua conta normalmente.
 
 ## Aplicativos padrão
 
