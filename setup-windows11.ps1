@@ -200,9 +200,9 @@ if (-not $pythonCommand) {
 
         & $pythonExe -m pip install --upgrade -r $requirementsPath
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "$requirementsFile: OK" -ForegroundColor Green
+            Write-Host "${requirementsFile}: OK" -ForegroundColor Green
         } else {
-            Write-Host "$requirementsFile: FALHOU" -ForegroundColor Red
+            Write-Host "${requirementsFile}: FALHOU" -ForegroundColor Red
             $failed += $requirementsFile
         }
     }
