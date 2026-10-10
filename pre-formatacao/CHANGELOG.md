@@ -8,7 +8,7 @@
 - Permite selecionar apenas configurações desejadas de VS Code; `settings.json` vem desmarcado por segurança.
 - Mantém backup de pastas adicionais e torna a auditoria consultável pela interface, com CSV, JSON e resumo TXT.
 - Registra itens copiados/verificados, ignorados, arquivos de links simbólicos e falhas da varredura.
-- Amplia suíte de testes de 7 para 11 casos e adiciona instruções de recuperação.
+- Amplia suíte de testes de 7 para 12 casos, incluindo regressão de caminhos redirecionados no Windows, e adiciona instruções de recuperação.
 
 ## 2.0.0 — 2026-10-10
 

@@ -128,6 +128,23 @@ class PreparadorPCTests(unittest.TestCase):
             self.assertEqual(report["arquivos_verificados"], 1)
             self.assertEqual(sha256(copy), sha256(original / "subpasta" / "foto.png"))
 
+    def test_organization_with_symlink_alias_has_no_false_ignored(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            actual = root / "Downloads"
+            actual.mkdir()
+            (actual / "arquivo.pdf").write_text("ok")
+            alias = root / "Downloads_alias"
+            try:
+                alias.symlink_to(actual, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("Links simbólicos indisponíveis")
+            plans = make_move_plan(alias)
+            report, _ = run_downloads_organization(alias, plans)
+            self.assertEqual(report["resumo"]["arquivos_movidos"], 1)
+            self.assertEqual(report["resumo"]["arquivos_ignorados"], 0)
+            self.assertEqual(report["resumo"]["erros"], 0)
+
     def test_installed_programs_multiple_exports(self):
         apps = [{"nome": "Editor", "versao": "1.0", "fabricante": "Equipe"},
                 {"nome": "Navegador", "versao": "2.0", "fabricante": "Fabricante"}]

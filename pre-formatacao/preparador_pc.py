@@ -160,13 +160,16 @@ def run_downloads_organization(downloads: Path, plans: list[MovePlan]) -> tuple[
         raise FileNotFoundError(f"Pasta não encontrada: {downloads}")
     started = datetime.now().isoformat(timespec="seconds")
     events: list[dict] = []
-    planned_sources = {plan.source for plan in plans}
+    # Compare nomes dentro da mesma pasta canônica: no Windows, diretórios
+    # temporários e caminhos redirecionados podem resolver para grafias diferentes.
+    planned_names = {plan.source.name for plan in plans
+                     if plan.source.parent.resolve() == downloads}
 
     # Estado inicial: todos os arquivos não planejados e subpastas preservadas.
     for item in sorted(downloads.iterdir(), key=lambda x: x.name.casefold()):
         if item.name == REPORTS_DIR and item.is_dir() and not item.is_symlink():
             continue
-        if item in planned_sources:
+        if item.name in planned_names:
             continue
         if item.is_symlink():
             events.append(_organization_event("ignorado", item, details="Atalho ou link simbólico, preservado"))
