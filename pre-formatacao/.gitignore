@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.log
+*.spec
+build/
+dist/
+.venv/
+.env
+.env.*
+_RELATORIOS_PREPARADOR_PC/
+PreparadorPC_*/
+VSCode_*/
+relatorio_backup.*
+relatorio_vscode.json
+programas_instalados.*

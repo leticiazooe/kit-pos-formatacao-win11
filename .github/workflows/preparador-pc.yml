@@ -1,0 +1,24 @@
+name: Preparador PC - testes
+on:
+  push:
+    paths:
+      - 'pre-formatacao/**'
+      - '.github/workflows/preparador-pc.yml'
+  pull_request:
+    paths:
+      - 'pre-formatacao/**'
+      - '.github/workflows/preparador-pc.yml'
+  workflow_dispatch:
+jobs:
+  unittest:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compilar fontes
+        run: python -m compileall -q pre-formatacao
+      - name: Rodar testes
+        working-directory: pre-formatacao
+        run: python -m unittest discover -v
