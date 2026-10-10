@@ -176,3 +176,15 @@ kit-pos-formatacao-win11/
 ## Observação
 
 A instalação depende de conexão com a internet e dos pacotes externos disponibilizados pelo Chocolatey e pelo PyPI. Caso algum pacote esteja temporariamente indisponível ou ainda não ofereça suporte à versão instalada do Python, o erro ficará registrado no log e o restante do processo continuará.
+
+## Antes de formatar — Preparador PC
+
+Este repositório também inclui o [Preparador PC (Python/Tkinter)](pre-formatacao/LEIA-ME.md),
+um utilitário **pré-formatação** independente do instalador pós-formatação acima.
+Ele organiza Downloads com prévia e histórico, faz backup verificado por SHA-256,
+exporta inventários de softwares e extensões do VS Code e permite selecionar pastas próprias.
+
+Execute a partir de `pre-formatacao/` com `python preparador_pc.py`.
+**Nunca publique relatórios de backup, arquivos pessoais ou configurações reais do VS Code no GitHub.**
+
+Versão atual do Preparador PC: [v3.0.0](pre-formatacao/CHANGELOG.md).
