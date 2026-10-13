@@ -188,3 +188,16 @@ Execute a partir de `pre-formatacao/` com `python preparador_pc.py`.
 **Nunca publique relatórios de backup, arquivos pessoais ou configurações reais do VS Code no GitHub.**
 
 Versão atual do Preparador PC: [v3.0.0](pre-formatacao/CHANGELOG.md).
+
+## Organizador PC — manutenção contínua de Downloads
+
+Depois de executar o kit pós-formatação, é possível instalar o **[Organizador PC v1.0.0](organizador-continuo-win11/README.md)**. Ele funciona como serviço do Windows 11, inicia automaticamente e organiza arquivos soltos de Downloads por extensão, com relatórios JSON/CSV/TXT, histórico e painel Tkinter.
+
+Instalação **opcional e separada**, em PowerShell como administrador:
+
+```powershell
+cd .\organizador-continuo-win11
+.\instalar.ps1
+```
+
+A instalação não é executada automaticamente pelo `setup-windows11.ps1`. Confira a pasta Downloads antes de ativar o serviço; o funcionamento depende de teste final no Windows 11. Consulte a documentação acima para requisitos, configuração e desinstalação.
