@@ -1,0 +1,3 @@
+# Única dependência externa necessária para o serviço Windows.
+# A interface Tkinter e o motor usam biblioteca padrão.
+pywin32>=311
