@@ -1,0 +1,8 @@
+{
+  "downloads_path": "C:\\Users\\SEU_USUARIO\\Downloads",
+  "storage_path": "C:\\ProgramData\\OrganizadorPC",
+  "interval_seconds": 300,
+  "min_age_seconds": 120,
+  "dry_run": false,
+  "unknown_category": "OUTROS"
+}
